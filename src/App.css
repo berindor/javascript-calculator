@@ -15,15 +15,17 @@ body {
   width: 400px;
   height: 80px;
   padding: auto;
+  font-size: 30px;
 }
 
 #key-wrapper {
   width: 400px;
-  height: 400px;
+  height: 430px;
 }
 
 button {
   width: 80px;
   height: 80px;
   font-size: 40px;
+  margin: 2px;
 }
