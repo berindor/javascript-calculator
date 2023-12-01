@@ -2,6 +2,7 @@
   --background-operator: rgb(176, 161, 121);
   --background-equals: rgb(152, 147, 186);
   --background-clear: rgba(153, 5, 29, 0.5);
+  --background-backspace: rgba(153, 5, 29, 0.35);
 }
 
 * {
@@ -80,10 +81,6 @@ button:active {
   grid-column: 1 / 3;
 }
 
-#clear {
-  grid-column: 3 / 5;
-}
-
 .operator {
   background-color: var(--background-operator);
 }
@@ -94,4 +91,14 @@ button:active {
 
 .clear {
   background-color: var(--background-clear);
+}
+
+.backspace {
+  background-color: var(--background-backspace);
+}
+
+@media (max-width: 500px) {
+  #calculator {
+    width: 100%;
+  }
 }

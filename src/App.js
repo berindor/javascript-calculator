@@ -65,7 +65,8 @@ const buttonConfig = [
   { id: 'multiply', html: 'x', className: 'operator' },
   { id: 'divide', html: '/', className: 'operator' },
   { id: 'equals', html: '=', className: 'equals' },
-  { id: 'clear', html: 'C', className: 'clear' }
+  { id: 'clear', html: 'C', className: 'clear' },
+  { id: 'backspace', html: <i class="material-icons">backspace</i>, className: 'backspace' }
 ];
 
 const defaultState = {
@@ -110,6 +111,11 @@ class App extends React.Component {
       arr[arr.length - 1] = button;
       return arr;
     }
+    if (operators.includes(button) && arr[arr.length - 1] === '.') {
+      //'. then [+-x/] => remove '.', add [+-x/]
+      arr[arr.length - 1] = button;
+      return arr;
+    }
     if (operators.includes(button) && arr.length === 0) {
       //[] then [+-x/] => insert 0, [+-*/]
       arr.push(0, button);
@@ -128,10 +134,14 @@ class App extends React.Component {
       arr.push(0, '.');
       return arr;
     }
-    if (button === '=' && operators.includes(arr[arr.length - 1])) {
-      //[+-x/], '=' => remove [+-x/]
+    if (button === '=' && (operators.includes(arr[arr.length - 1]) || arr[arr.length - 1] === '.')) {
+      //[+-x/] or '.', '=' => remove [+-x/'.']
       arr.pop();
       arr.push('=');
+      return arr;
+    }
+    if (button === 'del' && arr.length > 0) {
+      arr.pop();
       return arr;
     }
     arr.push(button);
@@ -139,6 +149,7 @@ class App extends React.Component {
   }
 
   handleClick(button) {
+    console.log(button); //remove
     if (button === 'C') {
       this.setState({
         // tried write defaultState here, but caused problem
@@ -158,7 +169,20 @@ class App extends React.Component {
       });
       return;
     }
-    const arr = this.handleArr(button, this.state.displayArr);
+    let arr = this.state.displayArr;
+    if (typeof button === 'object') {
+      button = 'del';
+    }
+    if (button === 'del' && typeof arr[arr.length - 1] !== 'number' && arr[arr.length - 1] !== '.') {
+      arr.pop();
+      this.setState({
+        displayArr: arr,
+        firstRow: arr.join(''),
+        secondRow: ''
+      });
+      return;
+    }
+    arr = this.handleArr(button, this.state.displayArr);
     if (button === '=') {
       arr.pop();
       this.setState({
@@ -187,12 +211,23 @@ class App extends React.Component {
 
   handleKeyDown(event) {
     const validEvents = buttonConfig.map(({ html }) => html);
+    validEvents.pop();
+    validEvents.push('del');
     let button = event.key;
     if (event.key === 'Enter') {
       button = '=';
     }
     if (event.key === 'c') {
       button = 'C';
+    }
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      button = 'del';
+    }
+    if (event.key === '*') {
+      button = 'x';
+    }
+    if (event.key === ':') {
+      button = '/';
     }
     if (validEvents.includes(button)) {
       this.handleClick(button);
