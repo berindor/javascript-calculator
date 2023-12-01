@@ -1,6 +1,11 @@
+:root {
+  --background-operator: rgb(176, 161, 121);
+  --background-equals: rgb(152, 147, 186);
+  --background-clear: rgba(153, 5, 29, 0.5);
+}
+
 * {
   box-sizing: border-box;
-  border: 1px solid black;
 }
 
 body {
@@ -9,24 +14,84 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #eee;
 }
 
 #formula,
 #display {
-  width: 400px;
-  height: 50px;
-  padding: auto;
+  width: 100%;
+  padding: 3px;
+  height: 40px;
   font-size: 30px;
 }
 
-#key-wrapper {
+#calculator {
   width: 400px;
+  border: 4px solid black;
+  border-radius: 5px;
+  background-color: white;
+}
+
+#key-wrapper {
   height: 430px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  border-top: 4px solid black;
+  padding: 2px;
 }
 
 button {
-  width: 80px;
-  height: 80px;
   font-size: 40px;
   margin: 2px;
+  border: 2px solid black;
+  background-color: #ddd;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+button:active {
+  border: 5px solid black;
+}
+
+#nine,
+#eight,
+#seven,
+#add {
+  grid-row: 1;
+}
+
+#six,
+#five,
+#four,
+#subtract {
+  grid-row: 2;
+}
+
+#zero,
+#decimal {
+  grid-row: 4;
+}
+
+#zero,
+#equals {
+  grid-column: 1 / 3;
+}
+
+#clear {
+  grid-column: 3 / 5;
+}
+
+.operator {
+  background-color: var(--background-operator);
+}
+
+.equals {
+  background-color: var(--background-equals);
+}
+
+.clear {
+  background-color: var(--background-clear);
 }
