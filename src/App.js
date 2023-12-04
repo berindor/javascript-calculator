@@ -49,46 +49,49 @@ function separateLastNumber(arr) {
 }
 
 const buttonConfig = [
-  { id: 'zero', html: 0, className: 'number' },
-  { id: 'one', html: 1, className: 'number' },
-  { id: 'two', html: 2, className: 'number' },
-  { id: 'three', html: 3, className: 'number' },
-  { id: 'four', html: 4, className: 'number' },
-  { id: 'five', html: 5, className: 'number' },
-  { id: 'six', html: 6, className: 'number' },
-  { id: 'seven', html: 7, className: 'number' },
-  { id: 'eight', html: 8, className: 'number' },
-  { id: 'nine', html: 9, className: 'number' },
-  { id: 'decimal', html: '.', className: 'decimal' },
-  { id: 'add', html: '+', className: 'operator' },
-  { id: 'subtract', html: '-', className: 'operator' },
-  { id: 'multiply', html: 'x', className: 'operator' },
-  { id: 'divide', html: '/', className: 'operator' },
-  { id: 'equals', html: '=', className: 'equals' },
-  { id: 'clear', html: 'C', className: 'clear' },
-  { id: 'backspace', html: <i class="material-icons">backspace</i>, className: 'backspace' }
+  { id: 'zero', symbol: 0, className: 'number' },
+  { id: 'one', symbol: 1, className: 'number' },
+  { id: 'two', symbol: 2, className: 'number' },
+  { id: 'three', symbol: 3, className: 'number' },
+  { id: 'four', symbol: 4, className: 'number' },
+  { id: 'five', symbol: 5, className: 'number' },
+  { id: 'six', symbol: 6, className: 'number' },
+  { id: 'seven', symbol: 7, className: 'number' },
+  { id: 'eight', symbol: 8, className: 'number' },
+  { id: 'nine', symbol: 9, className: 'number' },
+  { id: 'decimal', symbol: '.', className: 'decimal' },
+  { id: 'add', symbol: '+', className: 'operator' },
+  { id: 'subtract', symbol: '-', className: 'operator' },
+  { id: 'multiply', symbol: 'x', className: 'operator' },
+  { id: 'divide', symbol: '/', className: 'operator' },
+  { id: 'equals', symbol: '=', className: 'equals' },
+  { id: 'clear', symbol: 'C', className: 'clear' },
+  { id: 'backspace', symbol: 'del', className: 'backspace' }
 ];
 
-const defaultState = {
-  displayArr: [],
-  firstRow: '',
-  secondRow: 0,
-  isAns: false
-};
+function getDefaultState() {
+  return {
+    displayArr: [],
+    firstRow: '',
+    secondRow: 0,
+    isAns: false
+  };
+}
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = defaultState;
+    this.state = getDefaultState();
     this.createButton = this.createButton.bind(this);
     this.handleArr = this.handleArr.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
-  createButton({ id, html, className }) {
+  createButton({ id, symbol, className }) {
+    const html = symbol === 'del' ? <i class="material-icons">backspace</i> : symbol;
     return (
-      <button id={id} key={id} className={className} onClick={() => this.handleClick(html)}>
+      <button id={id} key={id} className={className} onClick={() => this.handleClick(symbol)}>
         {html}
       </button>
     );
@@ -123,6 +126,13 @@ class App extends React.Component {
     }
     if (button === 0 && arr[arr.length - 1] === 0 && (operators.includes(arr[arr.length - 2]) || arr.length === 1)) {
       //[+-x/], 0 then 0 => do nothing
+      //need to be before the following if
+      return arr;
+    }
+    if (typeof button === 'number' && arr[arr.length - 1] === 0 && (operators.includes(arr[arr.length - 2]) || arr.length === 1)) {
+      //[+-x/], 0 then number =/= 0 => remove 0
+      arr.pop();
+      arr.push(button);
       return arr;
     }
     if (button === '.' && arr.findLast(element => typeof element === 'string') === '.') {
@@ -149,15 +159,8 @@ class App extends React.Component {
   }
 
   handleClick(button) {
-    console.log(button); //remove
     if (button === 'C') {
-      this.setState({
-        // tried write defaultState here, but caused problem
-        displayArr: [],
-        firstRow: '',
-        secondRow: 0,
-        isAns: false
-      });
+      this.setState(getDefaultState());
       return;
     }
     if (this.state.isAns === true && (typeof button === 'number' || button === '.')) {
@@ -170,9 +173,6 @@ class App extends React.Component {
       return;
     }
     let arr = this.state.displayArr;
-    if (typeof button === 'object') {
-      button = 'del';
-    }
     if (button === 'del' && typeof arr[arr.length - 1] !== 'number' && arr[arr.length - 1] !== '.') {
       arr.pop();
       this.setState({
@@ -191,6 +191,12 @@ class App extends React.Component {
         secondRow: computeResult(arr),
         isAns: true
       });
+      if ([NaN, Infinity, -Infinity].includes(computeResult(arr))) {
+        this.setState({
+          displayArr: [],
+          secondRow: 'Error'
+        });
+      }
       return;
     }
     this.setState({
@@ -210,11 +216,10 @@ class App extends React.Component {
   }
 
   handleKeyDown(event) {
-    const validEvents = buttonConfig.map(({ html }) => html);
-    validEvents.pop();
-    validEvents.push('del');
+    const validEvents = buttonConfig.map(({ symbol }) => symbol);
     let button = event.key;
     if (event.key === 'Enter') {
+      event.preventDefault();
       button = '=';
     }
     if (event.key === 'c') {
